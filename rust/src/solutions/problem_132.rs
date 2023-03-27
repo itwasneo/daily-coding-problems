@@ -30,14 +30,24 @@ impl HitCounter {
         self.hits.len()
     }
 
+    /// Returns 0 if the given lower range is outside of hits' timestamp bounds
     #[allow(dead_code)]
     fn range(&self, lo: u32, hi: u32) -> usize {
-        self.hits.iter().fold(0, |a, h| {
-            if h >= &lo && h <= &hi {
-                return a + 1;
-            }
-            a
-        }) as usize
+        if let Some((i, _)) = self
+            .hits
+            .iter()
+            .enumerate()
+            .filter(|(_, h)| *h >= &lo)
+            .next()
+        {
+            return self.hits[i..].iter().fold(0, |acc, h| {
+                if h <= &hi {
+                    return acc + 1;
+                }
+                acc
+            });
+        }
+        0
     }
 }
 
@@ -52,7 +62,11 @@ mod tests {
         hc.record(2);
         hc.record(3);
         hc.record(4);
-        assert_eq!(4, hc.total());
+        hc.record(6);
+        hc.record(9);
+        assert_eq!(6, hc.total());
         assert_eq!(2, hc.range(2, 3));
+        assert_eq!(4, hc.range(3, 9));
+        assert_eq!(0, hc.range(10, 32));
     }
 }
