@@ -10,16 +10,49 @@
 */
 
 #[allow(dead_code)]
-pub fn solve() -> i32 {
-    132
+struct HitCounter {
+    hits: Vec<u32>,
+}
+
+impl HitCounter {
+    #[allow(dead_code)]
+    fn new() -> Self {
+        Self { hits: vec![] }
+    }
+
+    #[allow(dead_code)]
+    fn record(&mut self, ts: u32) {
+        self.hits.push(ts);
+    }
+
+    #[allow(dead_code)]
+    fn total(&self) -> usize {
+        self.hits.len()
+    }
+
+    #[allow(dead_code)]
+    fn range(&self, lo: u32, hi: u32) -> usize {
+        self.hits.iter().fold(0, |a, h| {
+            if h >= &lo && h <= &hi {
+                return a + 1;
+            }
+            a
+        }) as usize
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::solve;
+    use super::HitCounter;
 
     #[test]
-    fn is_working() {
-        assert_eq!(132, solve());
+    fn problem_132() {
+        let mut hc = HitCounter::new();
+        hc.record(1);
+        hc.record(2);
+        hc.record(3);
+        hc.record(4);
+        assert_eq!(4, hc.total());
+        assert_eq!(2, hc.range(2, 3));
     }
 }
